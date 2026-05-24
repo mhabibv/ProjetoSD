@@ -244,6 +244,7 @@ public class Cliente {
     // =========================
     // AUXILIARES DE INPUT / FILTRO
     // =========================
+    // Executa o processo de troca de 3 cartas por bônus de tropas
     private static void executarTrocaCartas(Scanner sc, JogoRemote jogo, String meuNome) throws Exception {
         System.out.println("\n--- TROCA DE CARTAS ---");
         System.out.println("Digite os 3 índices das cartas separados por espaço (ex: 0 1 2):");
@@ -277,6 +278,7 @@ public class Cliente {
         }
     }
 
+    // Exibe o mapa com cores e informações sobre cada país
     private static void mostrarMapa(List<PaisDTO> mapa, String meuNome) {
         System.out.println(Cores.BRANCO_NEGRITO + "\n--- MAPA ATUAL ---" + Cores.RESET);
         
@@ -308,6 +310,7 @@ public class Cliente {
         System.out.println(Cores.BRANCO_NEGRITO + "------------------" + Cores.RESET);
     }
 
+    // Exibe uma lista de países com títulos
     private static void mostrarLista(List<PaisDTO> lista, String titulo) {
         System.out.println("\n>>> " + titulo);
         if (lista.isEmpty()) System.out.println("(Vazia)");
@@ -316,6 +319,7 @@ public class Cliente {
         }
     }
 
+    // Exibe as cartas que o jogador possui no console
     private static void mostrarCartasLocal(List<CartaDTO> cartas) {
         System.out.print("Suas cartas: ");
         if (cartas.isEmpty()) System.out.println("[Nenhuma]");
@@ -327,6 +331,7 @@ public class Cliente {
         }
     }
 
+    // Permite o usuário escolher um índice com opção de cancelamento (-1)
     private static int escolherComCancelamento(Scanner sc, int max) {
         System.out.println("Escolha o índice (ou -1 para cancelar):");
         while (true) {
@@ -339,6 +344,7 @@ public class Cliente {
         }
     }
 
+    // Lê uma opção de menu do usuário dentro de um intervalo específico
     private static int lerOpcaoMenu(Scanner sc, int min, int max) {
         while (true) {
             if (sc.hasNextInt()) {
@@ -349,6 +355,7 @@ public class Cliente {
         }
     }
 
+    // Lê um número positivo do usuário
     private static int lerNumero(Scanner sc) {
         while (true) {
             if (sc.hasNextInt()) {
@@ -359,24 +366,28 @@ public class Cliente {
         }
     }
 
+    // Filtra e retorna apenas os países que pertencem ao jogador
     private static List<PaisDTO> filtrarPaisesDoJogador(List<PaisDTO> mapa, String jogador) {
         List<PaisDTO> l = new ArrayList<>();
         for (PaisDTO p : mapa) if (p.dono.equals(jogador)) l.add(p);
         return l;
     }
 
+    // Filtra e retorna apenas os países do jogador que têm mais de 1 tropa (podem atacar)
     private static List<PaisDTO> filtrarPaisesAtacantes(List<PaisDTO> mapa, String jogador) {
         List<PaisDTO> l = new ArrayList<>();
         for (PaisDTO p : mapa) if (p.dono.equals(jogador) && p.tropas > 1) l.add(p);
         return l;
     }
 
+    // Filtra e retorna países vizinhos que não pertencem ao jogador (possíveis alvos de ataque)
     private static List<PaisDTO> filtrarAlvos(List<PaisDTO> mapa, PaisDTO origem, String jogador) {
         List<PaisDTO> l = new ArrayList<>();
         for (PaisDTO p : mapa) if (origem.vizinhos.contains(p.nome) && !p.dono.equals(jogador)) l.add(p);
         return l;
     }
 
+    // Filtra e retorna países vizinhos que pertencem ao jogador (possíveis destinos de movimento)
     private static List<PaisDTO> filtrarDestinos(List<PaisDTO> mapa, PaisDTO origem, String jogador) {
         List<PaisDTO> l = new ArrayList<>();
         for (PaisDTO p : mapa) if (origem.vizinhos.contains(p.nome) && p.dono.equals(jogador)) l.add(p);

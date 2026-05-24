@@ -41,10 +41,12 @@ public class Jogo {
     // UTILITÁRIOS
     // =========================
 
+    // Retorna o jogador atual baseado no índice de turno
     public synchronized Jogador getJogadorAtual() {
         return jogadores.get(turnoAtual);
     }
 
+    // Busca um país pelo nome
     private Pais buscarPais(String nome) {
         for (Pais p : mapa) {
             if (p.getNome().equalsIgnoreCase(nome)) return p;
@@ -52,6 +54,7 @@ public class Jogo {
         return null;
     }
 
+    // Calcula a quantidade de tropas de reforço que um jogador recebe baseado em seus territórios e continentes dominados
     private int calcularReforco(Jogador j) {
         int territorios = 0;
         for (Pais p : mapa) {
@@ -70,6 +73,7 @@ public class Jogo {
         return base + bonusC;
     }
     
+    // Verifica se há um vencedor (um jogador que domina todos os países)
     private void verificarVitoria() {
         Jogador donoUnico = null;
         
@@ -90,6 +94,7 @@ public class Jogo {
     // ENTRADA E SETUP
     // =========================
 
+    // Registra a entrada de um novo jogador e inicia o jogo se o máximo foi atingido
     public synchronized String entrar(String nome) {
         if (estado != EstadoJogo.AGUARDANDO_JOGADORES) return "Erro: Jogo em andamento.";
         for (Jogador j : jogadores) {
@@ -101,6 +106,7 @@ public class Jogo {
         return "OK";
     }
 
+    // Inicia o jogo: embaralha o mapa, distribui países e define a quantidade inicial de tropas
     private void iniciarJogo() {
         Collections.shuffle(mapa);
         for (int i = 0; i < mapa.size(); i++) {
@@ -154,6 +160,7 @@ public class Jogo {
     // REFORÇO
     // =========================
 
+    // Reforça um país do jogador com tropas durante a fase de reforço
     public synchronized String reforcar(String jogador, String nomePais, int qtd) {
         if (faseAtual != FaseTurno.REFORCO) return "Erro: Não é fase de reforço.";
         if (!getJogadorAtual().getNome().equals(jogador)) return "Erro: Não é seu turno.";
@@ -182,6 +189,7 @@ public class Jogo {
     // ATAQUE (Soberano)
     // =========================
 
+    // Realiza um ataque de um país para outro com dados aleatórios
     public synchronized String atacar(String jogadorNome, String origemNome, String destinoNome) {
         // 1. Validações de Regra de Negócio
         if (faseAtual != FaseTurno.ATAQUE) return "Erro: Não é fase de ataque.";
@@ -239,6 +247,7 @@ public class Jogo {
     // MOVIMENTO
     // =========================
 
+    // Move tropas de um país vizinho para outro do mesmo jogador
     public synchronized String mover(String jogador, String origem, String destino, int qtd) {
         if (faseAtual != FaseTurno.MOVIMENTO) return "Erro: Não é fase de movimento.";
         if (!getJogadorAtual().getNome().equals(jogador)) return "Erro: Não é seu turno.";
@@ -261,6 +270,7 @@ public class Jogo {
     // CARTAS E TROCA
     // =========================
 
+    // Troca 3 cartas por um bônus de tropas
     public synchronized String trocarCartas(String jogadorNome, List<Integer> indices) {
         if (faseAtual != FaseTurno.REFORCO) return "Erro: Troca apenas na fase de reforço.";
         Jogador j = getJogadorAtual();
@@ -285,6 +295,7 @@ public class Jogo {
         return "OK: Troca realizada! +" + bonus + " tropas.";
     }
 
+    // Verifica se a combinação de 3 cartas é válida (todas iguais ou todas diferentes)
     private boolean combinacaoValida(List<Carta> selecionadas) {
         Set<Carta.Tipo> tipos = new HashSet<>();
         for (Carta c : selecionadas) tipos.add(c.getTipo());
@@ -295,6 +306,7 @@ public class Jogo {
     // FLUXO DE TURNOS
     // =========================
 
+    // Passa para a próxima fase do turno (de ATAQUE para MOVIMENTO)
     public synchronized String passarFase(String jogador) {
         if (!getJogadorAtual().getNome().equals(jogador)) return "Erro: Não é seu turno.";
         
@@ -305,6 +317,7 @@ public class Jogo {
         return "Erro: Não pode pular esta fase desta forma.";
     }
 
+    // Passa para o próximo turno, incrementando o jogador atual
     public synchronized String proximoTurno(String jogador) {
     	
     	if (vencedor != null) return "Erro: O jogo já acabou! Vencedor: " + vencedor;
@@ -340,6 +353,7 @@ public class Jogo {
         return "OK: Turno de " + proximo.getNome();
     }
 
+    // Conta a quantidade de países que um jogador possui
     private int contarPaises(Jogador j) {
         int total = 0;
         for (Pais p : mapa) {
@@ -352,6 +366,7 @@ public class Jogo {
     // MÉTODOS REMOTOS (GETTERS)
     // =========================
 
+    // Retorna o mapa completo convertido para DTOs
     public synchronized List<PaisDTO> getMapaDTO() {
         List<PaisDTO> lista = new ArrayList<>();
         for (Pais p : mapa) {
@@ -372,12 +387,18 @@ public class Jogo {
         return lista;
     }
 
+    // Getter para o estado atual do jogo
     public String getEstadoJogo() { return estado.name(); }
+    // Getter para a fase atual do turno
     public String getFaseAtual() { return faseAtual.name(); }
+    // Getter para as tropas restantes que um jogador deve distribuir
     public int getTropasRestantes(String j) { return tropasParaDistribuir.getOrDefault(j, 0); }
+    // Getter para as tropas de reforço disponíveis de um jogador
     public int getTropasReforco(String j) { return tropasReforco.getOrDefault(j, 0); }
+    // Getter para a lista de todos os jogadores
     public List<Jogador> getJogadores() { return jogadores; }
     
+    // Retorna as cartas de um jogador convertidas para DTOs
     public synchronized List<CartaDTO> getCartasDoJogador(String nome) {
         List<CartaDTO> lista = new ArrayList<>();
         for (Jogador j : jogadores) {
@@ -389,26 +410,30 @@ public class Jogo {
         }
         return lista;
     }
+    // Getter para o vencedor (ou null se jogo em andamento)
     public String getVencedor() {
         return vencedor;
     }
     
+    // Retorna a lista de nomes de todos os jogadores
     public List<String> getNomesJogadores() {
         List<String> nomes = new ArrayList<>();
         for (Jogador j : jogadores) nomes.add(j.getNome());
         return nomes;
     }
 
+    // Adiciona um país ao mapa
     public void adicionarPais(Pais p) { mapa.add(p); }
+    // Adiciona um continente ao jogo
     public void adicionarContinente(Continente c) { continentes.add(c); }
     
-	 // Método para adicionar ao log e manter apenas as últimas 5-10 mensagens
+	 // Registra uma ação no histórico, mantendo apenas as últimas 8 mensagens
 	 private void registrarAcao(String msg) {
 	     logAcoes.add(0, msg); // Adiciona no topo
 	     if (logAcoes.size() > 8) logAcoes.remove(8); // Mantém o log curto
 	 }
 	
-	 // Getter para o RMI
+	 // Retorna o histórico de ações do jogo
 	 public List<String> getLogAcoes() {
 	     return logAcoes;
 	 }
